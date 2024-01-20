@@ -14,6 +14,6 @@ _CLI for C++ courses for GitHub written in PYthon_
 
 ## Благодарности
 
-Оригинальная идея клиента и реализация – [Роман Липовски](https://gitlab.com/Lipovsky)
+Оригинальная идея клиента и реализация – [Роман Липовский](https://gitlab.com/Lipovsky)
 
 
