@@ -194,8 +194,6 @@ def is_git_repo(path):
     except git.exc.InvalidGitRepositoryError:
         return False
 
-    return False
-
 def git_repo_root_dir(cwd):
     output = subprocess.check_output(
         ["git", "rev-parse", "--show-toplevel"], cwd=cwd)

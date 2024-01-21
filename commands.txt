@@ -15,7 +15,7 @@ config
 show-config
 commit
 push
-merge-request
+pull-request
 attach
 attach-local
 apply

@@ -5,7 +5,6 @@ from . import highlight
 from . import helpers
 
 import os
-import datetime
 
 class TaskTargets:
     def __init__(self, task, build):
@@ -27,8 +26,6 @@ class TaskTargets:
             return self._binary(build_dir, target)
 
     def run(self, target_name, profile, args):
-        #echo.echo("Build and run task target {} in profile {}".format(
-        #    highlight.smth(target_name), highlight.smth(profile)))
         with echo.timed("Target {}".format(highlight.smth(target_name))):
             # 1) Build
             binary = self._build(target_name, profile)

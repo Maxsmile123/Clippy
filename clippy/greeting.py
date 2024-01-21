@@ -10,7 +10,7 @@ def pick():
         elif now.hour < 12:
             return "Good morning, {}!"
         elif now.hour < 18:
-            return "Hello, {}!"
+            return "Good day, {}!"
         else:
             return "Good evening, {}!"
 

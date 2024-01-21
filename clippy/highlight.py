@@ -17,8 +17,6 @@ else:
         return text
 
 
-# TODO(Lipovsky): support coloring schemes
-
 def success(text):
     return style(text, "green", attrs=["bold"])
 

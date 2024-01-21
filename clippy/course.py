@@ -121,8 +121,7 @@ class CourseClient:
                     os.remove(link_path)
                 shutil.rmtree(solutions_repo_dir)
             else:
-                # TODO(Lipovsky): interrupted
-                sys.exit(1)
+                raise ClientError("Aborting")
 
         echo.echo(
             "Clonging solutions repo '{}' to '{}'".format(
@@ -206,14 +205,6 @@ class CourseClient:
     def debug(self, task, target, profile, args):
         targets = TaskTargets(task, self.build)
         targets.debug(target, profile, args)
-
-    def benchmark(self, task):
-        if task.conf.theory:
-            echo.note("Action disabled for theory task")
-            return
-
-        with self.build.profile("Release"):
-            check_call(helpers.make_target_command(task.run_benchmark_target))
 
     def _get_lint_targets(self, task):
         if task.conf.theory:
@@ -299,8 +290,6 @@ class CourseClient:
             clang_tidy.set_compiler_options(compiler_options)
 
         include_dirs = self._tidy_include_dirs(task)
-
-        # echo.echo("Include directories: {}".format(include_dirs))
 
         echo.echo(
             "Checking {} with clang-tidy ({})".format(task.conf.lint_files, clang_tidy.binary))
@@ -403,7 +392,7 @@ class CourseClient:
     def push_commits(self, task):
         self.solutions.push(task)
 
-    def create_merge_request(self, task):
+    def create_pull_request(self, task):
         self.solutions.merge(task)
 
     def hi(self):

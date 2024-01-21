@@ -168,12 +168,6 @@ def test_perf_command(args):
     client.test_performance(current_task)
     echo.done()
 
-
-def benchmark_command(args):
-    current_task = current_dir_task_or_die()
-    client.benchmark(current_task)
-    echo.done()
-
 def format_command(args):
     current_task = current_dir_task_or_die()
     client.format(current_task)
@@ -226,7 +220,7 @@ def push_command(args):
 
 def merge_command(args):
     current_task = current_dir_task_or_die()
-    client.create_merge_request(current_task)
+    client.create_pull_request(current_task)
     echo.done()
 
 def hi_command(args):

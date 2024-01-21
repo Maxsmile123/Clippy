@@ -314,28 +314,25 @@ class Solutions(object):
         )
 
         assignee_username = self.config.get("assignee")
-        assignees = gitlab_client.users.list(username=assignee_username)
+        assignees = github_client.users.list(username=assignee_username)
         if not assignees:
             raise ClientError(
                 "Assignee not found: '{}'".format(assignee_username))
         assignee = assignees[0]
 
-        merge_request_attrs = {
-            'source_branch': task_branch_name,
-            'target_branch': self.master_branch,
-            'labels': labels,
-            'title': title,
-            'assignee_id': assignee.id
-        }
-
         try:
-            mr = project.mergerequests.create(merge_request_attrs)
-            echo.echo("Merge request created: {}".format(mr.web_url))
-        except gitlab.exceptions.GitlabCreateError as error:
-            if error.response_code == 409:
-                echo.note(
-                    "Merge request for task {} already exists".format(
-                        task.fullname))
+            pr = project.create_pull(
+                base=self.master_branch,
+                head=task_branch_name,
+                labels=labels,
+                title=title
+            )
+            pr.add_to_assignees(assignee)
+            echo.echo("Pull request created: {}".format(pr.html_url))
+        except Exception as error:
+            echo.note(
+                "Pull Request for task {} already exists".format(
+                    task.fullname))
 
     def apply_to(self, task, commit_hash=None, force=False):
         self._check_attached()
@@ -362,6 +359,5 @@ class Solutions(object):
             echo.echo("Applying solution from solutions repo...")
             helpers.copy_files(task_dir, task.dir, task.conf.solution_files, clear_dest=True)
 
-        # TODO: does new gitlab-runner fetch master?
-        #self._switch_to_master()
+        self._switch_to_master()
 
