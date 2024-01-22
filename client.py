@@ -279,10 +279,6 @@ def create_cmdline_parser():
     gdb.add_argument("profile", help="Build profile")
     gdb.add_argument("target_args", nargs=argparse.REMAINDER)
 
-    benchmark = subparsers.add_parser(
-        "benchmark", help="Run benchmark for current task", aliases=["bench"])
-    benchmark.set_defaults(cmd=benchmark_command)
-
     format = subparsers.add_parser("format", help="Apply clang-format to current task sources")
     format.set_defaults(cmd=format_command)
 
