@@ -98,7 +98,7 @@ class CourseClient:
 
     def attach_remote_solutions(self, url, local_name=None):
         url = url.rstrip('/')
-        helpers.check_gitlab(url)
+        helpers.check_github(url)
 
         repo_parent_dir = os.path.dirname(self.repo.working_tree_dir)
         os.chdir(repo_parent_dir)

@@ -178,14 +178,14 @@ def try_get_branch(gitlab_project, branch_name):
     return None
 
 
-def check_gitlab(url):
-    allowed_prefixes = ["https://gitlab.com/", "git@gitlab.com:"]
+def check_github(url):
+    allowed_prefixes = ["https://github.com/", "git@github.com:"]
     for prefix in allowed_prefixes:
         if url.startswith(prefix):
             return
 
     raise ClientError(
-        "Expected gitlab.com repository, provided: '{}'".format(url))
+        "Expected github.com repository, provided: '{}'".format(url))
 
 def is_git_repo(path):
     try:
