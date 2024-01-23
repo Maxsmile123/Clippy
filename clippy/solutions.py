@@ -313,7 +313,8 @@ class Solutions(object):
                 title=title
             )
             pr.add_to_assignees(assignee_username)
-            pr.add_to_labels(",".join(labels))
+            for label in labels:
+                pr.add_to_labels(label)
             echo.echo("Pull request created: {}".format(pr.html_url))
         except Exception:
             echo.note(
