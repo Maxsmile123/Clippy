@@ -11,7 +11,6 @@ from . import highlight
 
 
 # Build directory ("build" directory in course repo)
-
 class Build:
     class Profile:
         def __init__(self, name, entries):
@@ -146,7 +145,6 @@ class Build:
         check_call(cmake_cmd)
 
     def warmup(self, target):
-        #self.cmake()
         for profile, dir in self.profile_build_dirs():
             echo.echo(
                 "Warming up target {} for profile {}".format(

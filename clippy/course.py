@@ -1,8 +1,7 @@
 from . import helpers
 from . import highlight
-from .benchmark import print_benchmark_reports
 from .config import Config
-from .call import check_call, check_call_user_code, check_output_user_code
+from .call import check_call, check_output_user_code
 from .echo import echo
 from .exceptions import ClientError
 from .censor import Censor
@@ -19,7 +18,6 @@ import os
 import json
 import shutil
 import subprocess
-import sys
 
 from pathlib import Path
 
@@ -124,7 +122,7 @@ class CourseClient:
                 raise ClientError("Aborting")
 
         echo.echo(
-            "Clonging solutions repo '{}' to '{}'".format(
+            "Cloning solutions repo '{}' to '{}'".format(
                 url,
                 highlight.path(solutions_repo_dir)))
 
@@ -352,39 +350,6 @@ class CourseClient:
         success, report = checker.check_scores(solution_scores, private_scores)
         if not success:
             raise ClientError("Performance check failed: {}".format(report))
-
-    def test_performance(self, task):
-        if task.conf.theory:
-            echo.note("Disabled for theory task")
-            return
-
-        if not task.conf.test_perf:
-            echo.echo("No performance test")
-            return
-
-        private_solutions_repo_dir = self.repo.working_tree_dir + "-private"
-        private_solution_dir = os.path.join(private_solutions_repo_dir, "perf_solutions", task.fullname)
-        if not os.path.exists(private_solution_dir):
-            echo.echo("Private solution not found: {}".format(private_solution_dir))
-            return
-
-        echo.echo("Collecting benchmark scores for current solution...")
-        scores = self._get_benchmark_scores(task)
-
-        with helpers.BackupDirectory(task.dir, task.conf.solution_files) as backup:
-            echo.echo("Current solution backup: {}".format(backup.backup_dir))
-
-            echo.echo("Switching to reference solution...")
-            helpers.copy_files(private_solution_dir, task.dir, task.conf.solution_files)
-
-            echo.echo("Collecting benchmark scores for reference solution...")
-            private_scores = self._get_benchmark_scores(task)
-
-        print_benchmark_reports(scores, private_scores)
-
-        echo.blank_line()
-        echo.echo("Comparing scores...")
-        self._run_perf_checker(task, scores, private_scores)
 
     def commit(self, task, message=None, bump=False):
         self.solutions.commit(task, message, bump)

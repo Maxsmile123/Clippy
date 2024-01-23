@@ -10,7 +10,6 @@ import git
 
 from . import helpers
 from . import highlight
-from . import manytask
 from .echo import echo
 from .exceptions import ClientError
 from .config import Config
@@ -76,19 +75,6 @@ class Solutions(object):
 
         print(self.remote)
 
-        repo_name = helpers.get_repo_name(self.remote)
-
-        if manytask.maybe_from_manytask(repo_name):
-            try:
-                group, first_name, last_name, user = manytask.parse_user_info(repo_name)
-
-                template["group"] = group
-                template["name.first"] = first_name
-                template["name.last"] = last_name
-                template["github.user"] = user
-            except Exception:
-                pass
-
         if self.default_assignee:
             template["assignee"] = self.default_assignee
 
@@ -153,7 +139,8 @@ class Solutions(object):
     def _task_branch_name(task):
         return "{}/{}".format(task.topic, task.name)
 
-    def _task_dir(self, task):
+    @staticmethod
+    def _task_dir(task):
         return "{}/{}".format(task.topic, task.name)
 
     def _switch_to_or_create_branch(self, branch):
@@ -182,7 +169,8 @@ class Solutions(object):
     def _unstage_all(self):
         self._git(["reset", "HEAD", "."], cwd=self.repo_dir)
 
-    def _check_no_diff(self, task, files):
+    @staticmethod
+    def _check_no_diff(task, files):
         for fname in files:
             fpath = os.path.join(task.dir, fname)
             diff = subprocess.check_output(["git", "diff", "origin/master", "--", fpath])
@@ -204,7 +192,7 @@ class Solutions(object):
         os.chdir(self.repo_dir)
         echo.echo("Moving to repo {}".format(highlight.path(self.repo_dir)))
 
-        self._unstage_all();
+        self._unstage_all()
         self._switch_to_master()
 
         task_branch = self._task_branch_name(task)
@@ -283,7 +271,10 @@ class Solutions(object):
 
         # Create Github client
 
-        token = self.config.get("github.token")
+        token = self.config.get_or("github.token", None)
+        if token is None:
+            raise ClientError("Token for GitHub not found")
+
         auth = github.Auth.Token(token)
         github_client = github.GitHub(auth=auth)
 
@@ -318,7 +309,6 @@ class Solutions(object):
         if not assignees:
             raise ClientError(
                 "Assignee not found: '{}'".format(assignee_username))
-        assignee = assignees[0]
 
         try:
             pr = project.create_pull(
@@ -327,9 +317,9 @@ class Solutions(object):
                 labels=labels,
                 title=title
             )
-            pr.add_to_assignees(assignee)
+            pr.add_to_assignees(assignees)
             echo.echo("Pull request created: {}".format(pr.html_url))
-        except Exception as error:
+        except Exception:
             echo.note(
                 "Pull Request for task {} already exists".format(
                     task.fullname))

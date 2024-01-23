@@ -3,11 +3,9 @@ import os
 import subprocess
 import sys
 
-from . import helpers
 from . import highlight
 from . import sandbox
 from .echo import echo
-from .exceptions import ClientError
 
 
 def call_with_live_output(cmd, **kwargs):
@@ -16,7 +14,6 @@ def call_with_live_output(cmd, **kwargs):
         shell=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        #bufsize=1,
         **kwargs)
 
     for line in p.stdout:

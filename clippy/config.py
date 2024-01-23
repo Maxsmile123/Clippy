@@ -6,7 +6,9 @@ from .exceptions import ClientError
 
 
 class Config:
-    def __init__(self, path, template={}):
+    def __init__(self, path, template=None):
+        if template is None:
+            template = {}
         self.path = path
         self._init(template)
 

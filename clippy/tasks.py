@@ -1,6 +1,5 @@
 import logging
 import os
-import subprocess
 
 from .censor import CensorRule
 from .exceptions import ClientError
@@ -13,12 +12,15 @@ parent = os.path.dirname
 # --------------------------------------------------------------------
 
 class TestGroup(object):
-    def __init__(self, targets, profiles, args=[]):
+    def __init__(self, targets, profiles, args=None):
+        if args is None:
+            args = []
         self.targets = targets
         self.profiles = profiles
         self.args = args
 
 # --------------------------------------------------------------------
+
 
 class TaskConfig(object):
     def __init__(self, json_conf):
@@ -109,6 +111,7 @@ class TaskConfig(object):
 
 # --------------------------------------------------------------------
 
+
 class Task(object):
     def __init__(self, dir, topic, name, conf):
         self.dir = dir
@@ -140,8 +143,6 @@ class Task(object):
         return "task_{topic}_{task}_{target}".format(
             topic=self.topic, task=self.name, target=name)
 
-    # TODO: abstract task PL
-
     @property
     def all_files_to_lint(self):
         return helpers.cpp_files(
@@ -156,6 +157,7 @@ class Task(object):
 
 # Tasks "repository" (tasks directory in course repo)
 
+
 class Tasks(object):
     def __init__(self, git_repo):
         self.root_dir = self.tasks_root_directory(git_repo)
@@ -164,7 +166,8 @@ class Tasks(object):
     def tasks_root_directory(git_repo):
         return os.path.join(git_repo.working_tree_dir, 'tasks')
 
-    def _find_task_dir(self, start_dir):
+    @staticmethod
+    def _find_task_dir(start_dir):
         return helpers.climb("task.json", start_dir, steps=4)
 
     def get_dir_task(self, start_dir):

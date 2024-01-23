@@ -6,6 +6,7 @@ from . import helpers
 
 import os
 
+
 class TaskTargets:
     def __init__(self, task, build):
         self.task = task
@@ -88,7 +89,8 @@ class TestRunner:
         for profile in group.profiles:
             self._run_tests_with_profile(group.targets, group.args, profile)
 
-    def _load_custom_config(self, config_path):
+    @staticmethod
+    def _load_custom_config(config_path):
         return TaskConfig.load_from(config_path)
 
     def run_tests(self, config_path):
@@ -99,10 +101,11 @@ class TestRunner:
             config = self._load_custom_config(config_path)
 
         for g in config.tests:
-            self._run_test_group(g);
+            self._run_test_group(g)
 
         echo.echo("All {}/{} tests completed!".format(
             highlight.topic(self.task.topic), highlight.task(self.task.name)))
+
 
 def create_test_runner(task, build):
     return TestRunner(task, build)

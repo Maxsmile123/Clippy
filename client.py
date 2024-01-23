@@ -21,6 +21,7 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%Y-%m-%d %H:%M:%S")
 
+
 # --------------------------------------------------------------------
 
 
@@ -34,9 +35,11 @@ def print_command():
     echo.echo("Command running: {}, cwd: {}".format(
         sys.argv[1:], highlight.path(os.getcwd())))
 
+
 def print_time():
     now = datetime.datetime.now()
     echo.echo("Time: {}".format(now.strftime("%Y-%m-%d %H:%M:%S")))
+
 
 def print_platform():
     echo.echo("Platform: {}".format(platform.platform()))
@@ -46,6 +49,7 @@ def print_platform():
             platform.python_version(),
             platform.python_implementation(),
             highlight.path(sys.executable)))
+
 
 def print_compilers(config):
     try:
@@ -83,6 +87,7 @@ print_compilers(client.config)
 print_local_repo(client.repo)
 echo.blank_line()
 
+
 # --------------------------------------------------------------------
 
 
@@ -93,6 +98,7 @@ def current_dir_task_or_die():
         raise ClientError(
             "Not in task directory: {}".format(current_dir))
     return current_dir_task
+
 
 # --------------------------------------------------------------------
 
@@ -147,7 +153,7 @@ def config_command(args):
 
 def test_command(args):
     current_task = current_dir_task_or_die()
-    client.test(current_task, args.config, censor = not args.no_censor)
+    client.test(current_task, args.config, censor=not args.no_censor)
     echo.done()
 
 
@@ -163,30 +169,29 @@ def gdb_command(args):
     echo.done()
 
 
-def test_perf_command(args):
-    current_task = current_dir_task_or_die()
-    client.test_performance(current_task)
-    echo.done()
-
 def format_command(args):
     current_task = current_dir_task_or_die()
     client.format(current_task)
     echo.done()
+
 
 def tidy_command(args):
     current_task = current_dir_task_or_die()
     client.tidy(current_task)
     echo.done()
 
+
 def lint_command(args):
     current_task = current_dir_task_or_die()
     client.lint(current_task)
     echo.done()
 
+
 def censor_command(args):
     current_task = current_dir_task_or_die()
     client.censor(current_task)
     echo.done()
+
 
 def validate_command(args):
     current_task = current_dir_task_or_die()
@@ -223,8 +228,10 @@ def merge_command(args):
     client.create_pull_request(current_task)
     echo.done()
 
+
 def hi_command(args):
     client.hi()
+
 
 # --------------------------------------------------------------------
 
@@ -298,11 +305,6 @@ def create_cmdline_parser():
         help="Validate current task sources (linters, forbidden patterns)")
     validate.set_defaults(cmd=validate_command)
 
-    test_perf = subparsers.add_parser(
-        "test-perf-ci",
-        help="Run performance test for current task")
-    test_perf.set_defaults(cmd=test_perf_command)
-
     config = subparsers.add_parser(
         "config", help="Set client config attributes")
     config.add_argument("attr", help="E.g. path.to.attr")
@@ -317,7 +319,7 @@ def create_cmdline_parser():
         "attach", help="Attach remote solutions repo")
     attach.add_argument(
         "url",
-        help="E.g. https://gitlab.com/user/solutions.git")
+        help="E.g. https://github.com/user/solutions.git")
     attach.add_argument(
         "--local-name", help="Local copy name", default=None
     )
@@ -382,6 +384,7 @@ def main():
         print(e, file=sys.stderr)
         traceback.print_exc()
         sys.exit(1)
+
 
 # --------------------------------------------------------------------
 

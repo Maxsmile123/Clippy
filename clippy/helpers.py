@@ -94,7 +94,6 @@ def get_repo_name(url):
     url = url.rstrip('/')
 
     name = url.split('/')[-1]
-    # rstrip .git
     if name.endswith(".git"):
         name = name[:-4]
     return name
@@ -109,10 +108,7 @@ def copy_files(source_dir, dest_dir, names, clear_dest=False, make_dirs=False):
                 "File/dir '{}' not found in '{}'".format(
                     name, source_dir))
 
-    # TODO: remove all files from target directory
-
     if clear_dest:
-        # Remove dest dirs
         for name in names:
             source_path = os.path.join(source_dir, name)
             if os.path.isdir(source_path):
