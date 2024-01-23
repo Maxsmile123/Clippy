@@ -350,7 +350,7 @@ def create_cmdline_parser():
     push.set_defaults(cmd=push_command)
 
     merge = subparsers.add_parser(
-        "pull-request", help="Create pull request for current task", aliases=["mr"])
+        "pull-request", help="Create pull request for current task", aliases=["pr"])
     merge.set_defaults(cmd=merge_command)
 
     solutions_info = subparsers.add_parser(

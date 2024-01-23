@@ -6,6 +6,7 @@ import subprocess
 
 import click
 import github
+from github import Github
 import git
 
 from . import helpers
@@ -261,7 +262,7 @@ class Solutions(object):
     def merge(self, task):
         self._check_attached()
 
-        echo.echo("Creating merge request...")
+        echo.echo("Creating pull request...")
 
         task_branch_name = self._task_branch_name(task)
 
@@ -272,7 +273,7 @@ class Solutions(object):
             raise ClientError("Token for GitHub not found")
 
         auth = github.Auth.Token(token)
-        github_client = github.GitHub(auth=auth)
+        github_client = Github(auth=auth)
 
         remote_repo_address = self._get_remote_repo_address()
         echo.echo("Solutions GitHub repo: {}".format(remote_repo_address))
