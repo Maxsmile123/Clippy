@@ -167,8 +167,8 @@ class BackupDirectory:
       shutil.rmtree(self.backup_dir)
 
 
-def try_get_branch(gitlab_project, branch_name):
-    for branch in gitlab_project.branches.list(all=True):
+def try_get_branch(github_project, branch_name):
+    for branch in github_project.get_branches():
         if branch.name == branch_name:
             return branch
     return None
