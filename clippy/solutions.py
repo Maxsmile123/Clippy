@@ -301,20 +301,19 @@ class Solutions(object):
             task="{}/{}".format(task.topic, task.name)
         )
 
-        assignee_username = self.config.get("assignee")
-        assignees = github_client.users.list(username=assignee_username)
-        if not assignees:
+        assignee_username = self.config.get_or("assignee", None)
+        if assignee_username is None:
             raise ClientError(
-                "Assignee not found: '{}'".format(assignee_username))
+                "Assignee not found")
 
         try:
             pr = project.create_pull(
                 base=self.master_branch,
                 head=task_branch_name,
-                labels=labels,
                 title=title
             )
-            pr.add_to_assignees(assignees)
+            pr.add_to_assignees(assignee_username)
+            pr.add_to_labels("".join(labels))
             echo.echo("Pull request created: {}".format(pr.html_url))
         except Exception:
             echo.note(
