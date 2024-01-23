@@ -1,6 +1,6 @@
 # Clippy 📎
 
-_CLI for C++ courses for GitHub written in PYthon_
+_CLI for C++ courses with GitHub written in PYthon_
 
 [The Tragic Life of Clippy, the World's Most Hated Virtual Assistant](https://www.mentalfloss.com/article/504767/tragic-life-clippy-worlds-most-hated-virtual-assistant)
 
