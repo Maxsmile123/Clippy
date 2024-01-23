@@ -43,17 +43,19 @@ class Solutions(object):
 
 
     def setup_git_config(self):
-        with helpers.return_dir():
-            os.chdir(self.repo_dir)
-            try:
-                self._git(["config", "--get", "user.email"])
-            except subprocess.CalledProcessError:
-                self._git(["config", "user.email", ""])
-            try:
-                self._git(["config", "--get", "user.name"])
-            except subprocess.CalledProcessError:
-                self._git(["config", "user.name", '"{} {}"'.format(
-                    self.config.get("name.first"), self.config.get("name.last"))])
+        cur_dir = os.getcwd()
+        os.chdir(self.repo_dir)
+        try:
+            self._git(["config", "--get", "user.email"])
+        except subprocess.CalledProcessError:
+            self._git(["config", "user.email", ""])
+        try:
+            self._git(["config", "--get", "user.name"])
+        except subprocess.CalledProcessError:
+            self._git(["config", "user.name", '"{} {}"'.format(
+                self.config.get("name.first"), self.config.get("name.last"))])
+        finally:
+            os.chdir(cur_dir)
 
     def _open_config(self):
         config_path = os.path.join(self.repo_dir, ".clippy-user.json")
