@@ -196,6 +196,16 @@ def git_repo_root_dir(cwd):
     return output.strip().decode("utf-8")
 
 
+
+
+def return_dir():
+    ret_dir = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(ret_dir)
+
+
 def load_module(module_name, file_path):
     spec = importlib.util.spec_from_file_location(module_name, file_path)
     module = importlib.util.module_from_spec(spec)

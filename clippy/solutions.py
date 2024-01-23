@@ -41,15 +41,9 @@ class Solutions(object):
         if repo_dir:
             self._open_config()
 
-    def _return_dir(self):
-        return_dir = os.getcwd()
-        try:
-            yield
-        finally:
-            os.chdir(return_dir)
 
     def setup_git_config(self):
-        with self._return_dir():
+        with helpers.return_dir():
             os.chdir(self.repo_dir)
             try:
                 self._git(["config", "--get", "user.email"])
