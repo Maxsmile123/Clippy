@@ -138,7 +138,7 @@ class Solutions(object):
 
     @staticmethod
     def _task_dir(task):
-        return "{}/{}".format(task.topic, task.name)
+        return "tasks/{}/{}".format(task.topic, task.name)
 
     def _switch_to_or_create_branch(self, branch):
         try:
