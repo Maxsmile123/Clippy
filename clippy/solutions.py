@@ -46,6 +46,7 @@ class Solutions(object):
     def setup_git_config(self):
         cur_dir = os.getcwd()
         os.chdir(self.repo_dir)
+        self._git(["config", "--global", "credential.helper", "cache"])
         try:
             self._git(["config", "--get", "user.email"])
         except subprocess.CalledProcessError:
@@ -244,7 +245,7 @@ class Solutions(object):
         if token is None:
             raise ClientError("Token for GitHub not found")
 
-        self._git(["push", "origin", task_branch, "-c" , f"http.https://github.com/.extraheader=Authorization: token {token}"], cwd=self.repo_dir)
+        self._git(["push", "origin", task_branch], cwd=self.repo_dir)
 
         self._switch_to_master()
 
