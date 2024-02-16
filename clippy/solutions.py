@@ -239,7 +239,12 @@ class Solutions(object):
         task_branch = self._task_branch_name(task)
 
         self._switch_to_branch(task_branch)
-        self._git(["push", "origin", task_branch], cwd=self.repo_dir)
+
+        token = self.config.get_or("github.token", None)
+        if token is None:
+            raise ClientError("Token for GitHub not found")
+
+        self._git(["push", "origin", task_branch, "-c" , f"http.https://github.com/.extraheader=Authorization: token {token}"], cwd=self.repo_dir)
 
         self._switch_to_master()
 
