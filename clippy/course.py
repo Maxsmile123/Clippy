@@ -55,7 +55,7 @@ class CourseClient:
 
         diff = subprocess.check_output(
             ["git", "diff", prew_commit_hash, "--name-only"]
-        ).decode('utf-8')
+        ).decode()
 
         echo.echo(diff)
 
@@ -109,7 +109,7 @@ class CourseClient:
         echo.echo("Updating tasks repository\n")
 
         current_commit_hash = subprocess.check_output(
-            ["git", "rev-parse", "master", "HEAD"]
+            ["git", "rev-parse", "master", "HEAD", "| head -n 1"]
         ).decode("utf-8")
 
         master_branch = self.config.get_or("repo_master", "master")
