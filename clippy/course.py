@@ -109,8 +109,10 @@ class CourseClient:
         echo.echo("Updating tasks repository\n")
 
         current_commit_hash = subprocess.check_output(
-            ["git", "rev-parse", "master", "HEAD", "| head -n 1"]
+            ["git", "rev-parse", "master", "HEAD"]
         ).decode("utf-8")
+
+        current_commit_hash = current_commit_hash.split('\n')[0]
 
         master_branch = self.config.get_or("repo_master", "master")
         subprocess.check_call(["git", "pull", "origin", master_branch])
