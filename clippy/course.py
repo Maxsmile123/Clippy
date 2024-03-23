@@ -8,6 +8,7 @@ from .censor import Censor
 from .linters import ClangFormat, ClangTidy
 from .build import Build
 from .tasks import Tasks
+from .tasks import TaskConfig
 from .test_runner import create_test_runner, TaskTargets
 from .solutions import Solutions
 
@@ -49,14 +50,68 @@ class CourseClient:
     def _reopen_solutions(self):
         self.solutions = Solutions.open(self.repo, self.config)
 
+    def update_solution_repo(self, prew_commit_hash):
+        self.solutions._check_attached()
+
+        diff = subprocess.check_output(
+            ["git", "diff", "master", prew_commit_hash, "--name-only"]
+        ).decode('utf-8')
+
+        echo.echo(diff)
+
+        files_to_copy = []
+        for path_to_file in diff.split():
+            if "tasks/" in path_to_file:
+                task_conf = TaskConfig.load_from(
+                    os.path.join(os.path.dirname(path_to_file), "task.json")
+                )
+                for solution_file in task_conf.solution_files:
+                    if solution_file in path_to_file:
+                        continue
+            files_to_copy.append(path_to_file)
+        
+        echo.echo("Copying solution files: {}".format(files_to_copy))
+        course_repo = os.path.abspath(os.path.curdir)
+        solution_repo = self.solutions.repo_dir
+        os.chdir(solution_repo)
+        echo.echo("Moving to repo {}".format(highlight.path(solution_repo)))
+
+        self.solutions._unstage_all()
+        self.solutions._switch_to_master()
+
+        helpers.copy_files(
+            course_repo,
+            solution_repo,
+            files_to_copy,
+            clear_dest=True,
+            make_dirs=True
+        )
+        
+        os.chdir(solution_repo)
+
+        echo.echo("Adding solution files to index")
+        self._git(["add"] + files_to_copy, cwd=solution_repo)
+
+        message = self.solutions._update_commit_message()
+
+        echo.note("Committing task solution")
+        self._git(["commit", "-m", message], cwd=solution_repo)
+        self._git(["push", "origin", "master"], cwd=solution_repo)
+        
+        os.chdir(course_repo)
+
     def update(self, with_cmake):
         os.chdir(self.repo.working_tree_dir)
 
         echo.echo("Updating tasks repository\n")
 
+        curent_commit_hash = subprocess.check_output(["git", "rev-parse", "master", "HEAD"])
+
         master_branch = self.config.get_or("repo_master", "master")
         subprocess.check_call(["git", "pull", "origin", master_branch])
         subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
+
+        self.update_solution_repo(curent_commit_hash)
 
         if with_cmake:
             echo.blank_line()

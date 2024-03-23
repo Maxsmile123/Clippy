@@ -98,7 +98,6 @@ def get_repo_name(url):
         name = name[:-4]
     return name
 
-
 def copy_files(source_dir, dest_dir, names, clear_dest=False, make_dirs=False):
     # Check source files
     for name in names:

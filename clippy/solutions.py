@@ -163,6 +163,11 @@ class Solutions(object):
     @staticmethod
     def _default_commit_message(task):
         return "Bump task {}/{}".format(task.topic, task.name)
+    
+
+    @staticmethod
+    def _update_commit_message():
+        return "Update from https://github.com/Maxsmile123/Algorithms-And-DataStructure-Course/tree/master"
 
     def _unstage_all(self):
         self._git(["reset", "HEAD", "."], cwd=self.repo_dir)
