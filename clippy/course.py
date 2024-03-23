@@ -93,13 +93,13 @@ class CourseClient:
         os.chdir(solution_repo)
 
         echo.echo("Adding solution files to index")
-        self._git(["add"] + files_to_copy, cwd=solution_repo)
+        self.solutions._git(["add"] + files_to_copy, cwd=solution_repo)
 
         message = self.solutions._update_commit_message()
 
         echo.note("Committing task solution")
-        self._git(["commit", "-m", message], cwd=solution_repo)
-        self._git(["push", "origin", "master"], cwd=solution_repo)
+        self.solutions._git(["commit", "-m", message], cwd=solution_repo)
+        self.solutions._git(["push", "origin", "master"], cwd=solution_repo)
         
         os.chdir(course_repo)
 
