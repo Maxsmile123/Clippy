@@ -105,13 +105,15 @@ class CourseClient:
 
         echo.echo("Updating tasks repository\n")
 
-        curent_commit_hash = subprocess.check_output(["git", "rev-parse", "master", "HEAD"])
+        current_commit_hash = subprocess.check_output(
+            ["git", "rev-parse", "master", "HEAD"]
+        ).decode("utf-8")
 
         master_branch = self.config.get_or("repo_master", "master")
         subprocess.check_call(["git", "pull", "origin", master_branch])
         subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
 
-        self.update_solution_repo(curent_commit_hash)
+        self.update_solution_repo(current_commit_hash)
 
         if with_cmake:
             echo.blank_line()
