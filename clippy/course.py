@@ -54,7 +54,7 @@ class CourseClient:
         self.solutions._check_attached()
 
         diff = subprocess.check_output(
-            ["git", "diff", "master", prew_commit_hash, "--name-only"]
+            ["git", "diff", prew_commit_hash, "--name-only"]
         ).decode('utf-8')
 
         echo.echo(diff)
@@ -65,15 +65,18 @@ class CourseClient:
                 task_conf = TaskConfig.load_from(
                     os.path.join(os.path.dirname(path_to_file), "task.json")
                 )
+
                 for solution_file in task_conf.solution_files:
                     if solution_file in path_to_file:
                         continue
+
             files_to_copy.append(path_to_file)
-        
+
         echo.echo("Copying solution files: {}".format(files_to_copy))
         course_repo = os.path.abspath(os.path.curdir)
         solution_repo = self.solutions.repo_dir
         os.chdir(solution_repo)
+
         echo.echo("Moving to repo {}".format(highlight.path(solution_repo)))
 
         self.solutions._unstage_all()
