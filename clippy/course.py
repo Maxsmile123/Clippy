@@ -103,7 +103,7 @@ class CourseClient:
 
         echo.note("Committing task solution")
         self.solutions._git(["commit", "-m", message], cwd=solution_repo)
-        self.solutions._git(["push", "origin", "master"], cwd=solution_repo)
+        self.solutions._git(["push", "origin", "master", "-f"], cwd=solution_repo)
         
         os.chdir(course_repo)
 
