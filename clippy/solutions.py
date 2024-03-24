@@ -149,7 +149,7 @@ class Solutions(object):
 
     # target - commit sha or branch name
     def _switch_to_target(self, target):
-        self._git(["checkout", target, "--"], cwd=self.repo_dir)
+        self._git(["checkout", target, "--"], cwd=os.path.curdir)
 
     def _switch_to_branch(self, name):
         self._switch_to_target(name)

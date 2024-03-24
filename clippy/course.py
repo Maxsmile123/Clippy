@@ -75,7 +75,6 @@ class CourseClient:
             if is_append:
                 files_to_copy.append(path_to_file)
 
-        echo.echo("Copying solution files: {}".format(files_to_copy))
         course_repo = os.path.abspath(os.path.curdir)
         solution_repo = self.solutions.repo_dir
         os.chdir(solution_repo)
@@ -93,6 +92,7 @@ class CourseClient:
             clear_dest=True,
             make_dirs=True
         )
+        echo.echo("Copying solution files: {}".format(files_to_copy))
         
         os.chdir(solution_repo)
 
