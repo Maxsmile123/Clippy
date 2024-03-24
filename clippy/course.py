@@ -57,10 +57,16 @@ class CourseClient:
             ["git", "diff", prew_commit_hash, "--name-only"]
         ).decode()
 
+        course_repo = os.path.abspath(os.path.curdir)
+        solution_repo = self.solutions.repo_dir
+
         echo.echo(diff)
 
         files_to_copy = []
         for path_to_file in diff.split():
+            if not os.path.exists(os.path.join(course_repo, path_to_file)): 
+                continue
+            
             is_append = True
             try:
                 task_conf = TaskConfig.load_from(
@@ -77,8 +83,6 @@ class CourseClient:
             if is_append and "client" != path_to_file:
                 files_to_copy.append(path_to_file)
 
-        course_repo = os.path.abspath(os.path.curdir)
-        solution_repo = self.solutions.repo_dir
         os.chdir(solution_repo)
 
         echo.echo("Moving to repo {}".format(highlight.path(solution_repo)))
