@@ -60,7 +60,8 @@ class CourseClient:
         echo.echo(diff)
 
         files_to_copy = []
-        for path_to_file in diff.split():
+        for path_to_file in diff.split(): # Check This Place
+            is_append = True
             if "tasks/" in path_to_file:
                 task_conf = TaskConfig.load_from(
                     os.path.join(os.path.dirname(path_to_file), "task.json")
@@ -68,9 +69,11 @@ class CourseClient:
 
                 for solution_file in task_conf.solution_files:
                     if solution_file in path_to_file:
-                        continue
+                        is_append = False
+                        break
 
-            files_to_copy.append(path_to_file)
+            if is_append:
+                files_to_copy.append(path_to_file)
 
         echo.echo("Copying solution files: {}".format(files_to_copy))
         course_repo = os.path.abspath(os.path.curdir)
@@ -78,6 +81,7 @@ class CourseClient:
         os.chdir(solution_repo)
 
         echo.echo("Moving to repo {}".format(highlight.path(solution_repo)))
+        echo.echo("Current repo {}".format(highlight.path(os.path.abspath(os.path.curdir))))
 
         self.solutions._unstage_all()
         self.solutions._switch_to_master()
