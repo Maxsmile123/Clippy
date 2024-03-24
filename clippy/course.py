@@ -83,7 +83,7 @@ class CourseClient:
         echo.echo("Current repo {}".format(highlight.path(os.path.abspath(os.path.curdir))))
 
         self.solutions._unstage_all()
-        self.solutions._switch_to_master()
+        self.solutions._git(["checkout", "master"], cwd=solution_repo)
 
         helpers.copy_files(
             course_repo,
