@@ -62,7 +62,7 @@ class CourseClient:
         files_to_copy = []
         for path_to_file in diff.split():
             is_append = True
-            if "tasks/" in path_to_file:
+            try:
                 task_conf = TaskConfig.load_from(
                     os.path.join(os.path.dirname(path_to_file), "task.json")
                 )
@@ -71,6 +71,8 @@ class CourseClient:
                     if solution_file in path_to_file:
                         is_append = False
                         break
+            except BaseException:
+                pass
 
             if is_append and "client" != path_to_file:
                 files_to_copy.append(path_to_file)
