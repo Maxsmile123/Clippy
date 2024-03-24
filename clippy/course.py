@@ -87,6 +87,7 @@ class CourseClient:
         self.solutions._unstage_all()
         self.solutions._git(["checkout", "master"], cwd=solution_repo)
 
+        echo.echo("Copying solution files: {}".format(files_to_copy))
         helpers.copy_files(
             course_repo,
             solution_repo,
@@ -94,7 +95,6 @@ class CourseClient:
             clear_dest=True,
             make_dirs=True
         )
-        echo.echo("Copying solution files: {}".format(files_to_copy))
         
         os.chdir(solution_repo)
 
