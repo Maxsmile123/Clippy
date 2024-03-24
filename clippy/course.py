@@ -72,7 +72,7 @@ class CourseClient:
                         is_append = False
                         break
 
-            if is_append and "client" not in path_to_file:
+            if is_append and "client" != path_to_file:
                 files_to_copy.append(path_to_file)
 
         course_repo = os.path.abspath(os.path.curdir)
