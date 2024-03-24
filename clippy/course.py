@@ -60,7 +60,7 @@ class CourseClient:
         echo.echo(diff)
 
         files_to_copy = []
-        for path_to_file in diff.split(): # Check This Place
+        for path_to_file in diff.split():
             is_append = True
             if "tasks/" in path_to_file:
                 task_conf = TaskConfig.load_from(
@@ -72,7 +72,7 @@ class CourseClient:
                         is_append = False
                         break
 
-            if is_append:
+            if is_append and "client" not in path_to_file:
                 files_to_copy.append(path_to_file)
 
         course_repo = os.path.abspath(os.path.curdir)
