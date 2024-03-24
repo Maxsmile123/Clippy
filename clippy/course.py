@@ -101,9 +101,14 @@ class CourseClient:
 
         message = self.solutions._update_commit_message()
 
-        echo.note("Committing task solution")
-        self.solutions._git(["commit", "-m", message], cwd=solution_repo)
-        self.solutions._git(["push", "origin", "master", "-f"], cwd=solution_repo)
+        diff = subprocess.check_output(
+            ["git", "diff", "HEAD", "--name-only"]
+        )
+        
+        if diff:
+            echo.note("Committing task solution")
+            self.solutions._git(["commit", "-m", message], cwd=solution_repo)
+            self.solutions._git(["push", "origin", "master", "-f"], cwd=solution_repo)
         
         os.chdir(course_repo)
 
@@ -113,10 +118,8 @@ class CourseClient:
         echo.echo("Updating tasks repository\n")
 
         current_commit_hash = subprocess.check_output(
-            ["git", "rev-parse", "master", "HEAD"]
+            ["git", "rev-parse", "master"]
         ).decode("utf-8")
-
-        current_commit_hash = current_commit_hash.split('\n')[0]
 
         master_branch = self.config.get_or("repo_master", "master")
         subprocess.check_call(["git", "pull", "origin", master_branch])
