@@ -104,7 +104,7 @@ class CourseClient:
         diff = subprocess.check_output(
             ["git", "diff", "HEAD", "--name-only"]
         )
-        
+
         if diff:
             echo.note("Committing task solution")
             self.solutions._git(["commit", "-m", message], cwd=solution_repo)
@@ -119,7 +119,7 @@ class CourseClient:
 
         current_commit_hash = subprocess.check_output(
             ["git", "rev-parse", "master"]
-        ).decode("utf-8")
+        ).decode("utf-8").strip()
 
         master_branch = self.config.get_or("repo_master", "master")
         subprocess.check_call(["git", "pull", "origin", master_branch])
