@@ -51,72 +51,75 @@ class CourseClient:
         self.solutions = Solutions.open(self.repo, self.config)
 
     def update_solution_repo(self, prew_commit_hash):
-        self.solutions._check_attached()
+        try:
+            self.solutions._check_attached()
 
-        diff = subprocess.check_output(
-            ["git", "diff", prew_commit_hash, "--name-only"]
-        ).decode()
+            diff = subprocess.check_output(
+                ["git", "diff", prew_commit_hash, "--name-only"]
+            ).decode()
 
-        course_repo = os.path.abspath(os.path.curdir)
-        solution_repo = self.solutions.repo_dir
+            course_repo = os.path.abspath(os.path.curdir)
+            solution_repo = self.solutions.repo_dir
 
-        echo.echo(diff)
+            echo.echo(diff)
 
-        files_to_copy = []
-        for path_to_file in diff.split():
-            if not os.path.exists(os.path.join(course_repo, path_to_file)): 
-                continue
+            files_to_copy = []
+            for path_to_file in diff.split():
+                if not os.path.exists(os.path.join(course_repo, path_to_file)): 
+                    continue
+
+                is_append = True
+                try:
+                    task_conf = TaskConfig.load_from(
+                        os.path.join(os.path.dirname(path_to_file), "task.json")
+                    )
+
+                    for solution_file in task_conf.solution_files:
+                        if solution_file in path_to_file:
+                            is_append = False
+                            break
+                except BaseException:
+                    pass
+
+                if is_append and "client" != path_to_file:
+                    files_to_copy.append(path_to_file)
+
+            os.chdir(solution_repo)
+
+            echo.echo("Moving to repo {}".format(highlight.path(solution_repo)))
+            echo.echo("Current repo {}".format(highlight.path(os.path.abspath(os.path.curdir))))
+
+            self.solutions._unstage_all()
+            self.solutions._git(["checkout", "master"], cwd=solution_repo)
+
+            echo.echo("Copying solution files: {}".format(files_to_copy))
+            helpers.copy_files(
+                course_repo,
+                solution_repo,
+                files_to_copy,
+                clear_dest=True,
+                make_dirs=True
+            )
             
-            is_append = True
-            try:
-                task_conf = TaskConfig.load_from(
-                    os.path.join(os.path.dirname(path_to_file), "task.json")
-                )
+            os.chdir(solution_repo)
 
-                for solution_file in task_conf.solution_files:
-                    if solution_file in path_to_file:
-                        is_append = False
-                        break
-            except BaseException:
-                pass
+            echo.echo("Adding solution files to index")
+            self.solutions._git(["add"] + files_to_copy, cwd=solution_repo)
 
-            if is_append and "client" != path_to_file:
-                files_to_copy.append(path_to_file)
+            message = self.solutions._update_commit_message()
 
-        os.chdir(solution_repo)
+            diff = subprocess.check_output(
+                ["git", "diff", "HEAD", "--name-only"]
+            )
 
-        echo.echo("Moving to repo {}".format(highlight.path(solution_repo)))
-        echo.echo("Current repo {}".format(highlight.path(os.path.abspath(os.path.curdir))))
-
-        self.solutions._unstage_all()
-        self.solutions._git(["checkout", "master"], cwd=solution_repo)
-
-        echo.echo("Copying solution files: {}".format(files_to_copy))
-        helpers.copy_files(
-            course_repo,
-            solution_repo,
-            files_to_copy,
-            clear_dest=True,
-            make_dirs=True
-        )
-        
-        os.chdir(solution_repo)
-
-        echo.echo("Adding solution files to index")
-        self.solutions._git(["add"] + files_to_copy, cwd=solution_repo)
-
-        message = self.solutions._update_commit_message()
-
-        diff = subprocess.check_output(
-            ["git", "diff", "HEAD", "--name-only"]
-        )
-
-        if diff:
-            echo.note("Committing task solution")
-            self.solutions._git(["commit", "-m", message], cwd=solution_repo)
-            self.solutions._git(["push", "origin", "master", "-f"], cwd=solution_repo)
-        
-        os.chdir(course_repo)
+            if diff:
+                echo.note("Committing task solution")
+                self.solutions._git(["commit", "-m", message], cwd=solution_repo)
+                self.solutions._git(["push", "origin", "master", "-f"], cwd=solution_repo)
+        except:
+            echo.error("Не удалось перенести файлы в репозиторий решений. Перенеси их руками самостоятельно!")
+        finally:
+            os.chdir(course_repo)
 
     def update(self, with_cmake):
         os.chdir(self.repo.working_tree_dir)
