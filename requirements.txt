@@ -3,3 +3,4 @@ PyGithub
 click
 termcolor
 argcomplete
+pyyaml

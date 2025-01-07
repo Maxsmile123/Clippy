@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import yaml
 import shutil
 import subprocess
 
@@ -178,8 +179,36 @@ class Solutions(object):
             fpath = os.path.join(task.dir, fname)
             diff = subprocess.check_output(["git", "diff", "origin/master", "--", fpath])
             if diff:
-                raise ClientError("Commit aborted, please revert local changes in '{}'".format(fname));
-
+                raise ClientError("Commit aborted, please revert local changes in '{}'".format(fname))
+            
+    def _open_deadlines_config(self, filename="deadlines.yaml"):
+        deadlines_cofnig_path = os.path.join(self.repo_dir, filename)
+        with open(deadlines_cofnig_path) as f:
+            conf = yaml.safe_load(f)
+        
+        return conf
+    
+    
+    def _get_score_for_task(self, task_name):
+        deadline_conf = self._open_deadlines_config()
+        now = datetime.datetime.now()
+        result = ""
+        score = None
+        for task_group in deadline_conf:
+            if task_group['group'].lower() == task_name:
+                deadline = datetime.datetime.strptime(task_group['deadline'], '%d-%m-%Y H:M')
+                if now > deadline:
+                    result += f"Deadline for {task_name} was exceeded!"
+                    score = 100
+                else:
+                    for task in task_group['tasks']:
+                        if task['task'] == task_name:
+                            score = task['score']
+                    
+        result = result + f'Score is {score}'
+        return result
+                    
+                    
     def _pre_commit_checks(self, task):
         do_not_change_files = task.conf.do_not_change_files
         if do_not_change_files:
@@ -187,7 +216,7 @@ class Solutions(object):
 
     def commit(self, task, message=None, bump=False):
         self._check_attached()
-
+        
         self._pre_commit_checks(task)
 
         solution_files = task.conf.solution_files
@@ -228,9 +257,13 @@ class Solutions(object):
             self._switch_to_master()
             return
 
+
+
         if not message:
             message = self._default_commit_message(task)
-
+            
+        message += '. ' + self._get_score_for_task()
+            
         echo.note("Committing task solution")
         self._git(["commit", "-m", message], cwd=task_dir)
 
