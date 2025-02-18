@@ -90,6 +90,7 @@ class CourseClient:
             echo.echo("Current repo {}".format(highlight.path(os.path.abspath(os.path.curdir))))
 
             self.solutions._unstage_all()
+            self.solutions._stash()
             self.solutions._git(["checkout", "master"], cwd=solution_repo)
 
             echo.echo("Copying solution files: {}".format(files_to_copy))
@@ -132,7 +133,7 @@ class CourseClient:
 
         master_branch = self.config.get_or("repo_master", "master")
         subprocess.check_call(["git", "pull", "origin", master_branch])
-        subprocess.check_call(["git", "submodule", "update", "--init", "--recursive"])
+        subprocess.check_call(["git", "submodule", "update", "--remote", "--merge"])
 
         self.update_solution_repo(current_commit_hash)
 
