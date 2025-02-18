@@ -90,6 +90,7 @@ class CourseClient:
             echo.echo("Current repo {}".format(highlight.path(os.path.abspath(os.path.curdir))))
 
             self.solutions._unstage_all()
+            self.solutions._stash()
             self.solutions._git(["checkout", "master"], cwd=solution_repo)
 
             echo.echo("Copying solution files: {}".format(files_to_copy))
