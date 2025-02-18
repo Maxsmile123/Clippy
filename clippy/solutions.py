@@ -31,12 +31,13 @@ CONFIG_TEMPLATE = {
 
 
 class Solutions(object):
-    def __init__(self, repo_dir, default_assignee, master_branch):
+    def __init__(self, repo_dir, tasks_repo_dir, default_assignee, master_branch):
         if repo_dir and not os.path.exists(repo_dir):
             raise RuntimeError(
                 "Solutions repository not found at '{}'".format(repo_dir))
 
         self.repo_dir = repo_dir
+        self.tasks_repo_dir = tasks_repo_dir
         self.default_assignee = default_assignee
         self.master_branch = master_branch
 
@@ -99,7 +100,7 @@ class Solutions(object):
         default_assignee = config.get_or("default_assignee", None)
         master_branch = config.get_or("solutions_master", "master")
 
-        return Solutions(solutions_repo_dir, default_assignee, master_branch)
+        return Solutions(solutions_repo_dir, tasks_repo_dir, default_assignee, master_branch)
 
     @property
     def attached(self):
@@ -172,6 +173,9 @@ class Solutions(object):
 
     def _unstage_all(self):
         self._git(["reset", "HEAD", "."], cwd=self.repo_dir)
+        
+    def _stash(self):
+        self._git(["stash"], cwd=self.repo_dir)
 
     @staticmethod
     def _check_no_diff(task, files):
@@ -182,27 +186,29 @@ class Solutions(object):
                 raise ClientError("Commit aborted, please revert local changes in '{}'".format(fname))
             
     def _open_deadlines_config(self, filename="deadlines.yaml"):
-        deadlines_cofnig_path = os.path.join(self.repo_dir, filename)
+        deadlines_cofnig_path = os.path.join(self.tasks_repo_dir, filename)
         with open(deadlines_cofnig_path) as f:
             conf = yaml.safe_load(f)
         
         return conf
     
     
-    def _get_score_for_task(self, task_name):
+    def _get_score_for_task(self, task_obj):
         deadline_conf = self._open_deadlines_config()
         now = datetime.datetime.now()
         result = ""
         score = None
         for task_group in deadline_conf:
-            if task_group['group'].lower() == task_name:
-                deadline = datetime.datetime.strptime(task_group['deadline'], '%d-%m-%Y H:M')
+            if task_group['group'].lower() == task_obj.topic:
+                deadline = datetime.datetime.strptime(task_group['deadline'], '%d-%m-%Y %H:%M')
+                print(f'сраниванию сейчас: {now} и дедлайн {deadline}')
                 if now > deadline:
-                    result += f"Deadline for {task_name} was exceeded!"
+                    result += f"Deadline for {task_obj.name} was exceeded! "
                     score = 100
                 else:
                     for task in task_group['tasks']:
-                        if task['task'] == task_name:
+                        print(f"Сравниваю {task['task']} и {task_obj.name}")
+                        if task['task'].split('/')[1] == task_obj.name:
                             score = task['score']
                     
         result = result + f'Score is {score}'
@@ -225,6 +231,7 @@ class Solutions(object):
         echo.echo("Moving to repo {}".format(highlight.path(self.repo_dir)))
 
         self._unstage_all()
+        self._stash()
         self._switch_to_master()
 
         task_branch = self._task_branch_name(task)
@@ -262,7 +269,7 @@ class Solutions(object):
         if not message:
             message = self._default_commit_message(task)
             
-        message += '. ' + self._get_score_for_task()
+        message += '. ' + self._get_score_for_task(task)
             
         echo.note("Committing task solution")
         self._git(["commit", "-m", message], cwd=task_dir)
