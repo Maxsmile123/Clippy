@@ -67,21 +67,8 @@ class CourseClient:
             for path_to_file in diff.split():
                 if not os.path.exists(os.path.join(course_repo, path_to_file)): 
                     continue
-
-                is_append = True
-                try:
-                    task_conf = TaskConfig.load_from(
-                        os.path.join(os.path.dirname(path_to_file), "task.json")
-                    )
-
-                    for solution_file in task_conf.solution_files:
-                        if solution_file in path_to_file:
-                            is_append = False
-                            break
-                except BaseException:
-                    pass
-
-                if is_append and "client" != path_to_file:
+                
+                if "client" != path_to_file:
                     files_to_copy.append(path_to_file)
 
             os.chdir(solution_repo)
